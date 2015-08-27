@@ -41,7 +41,8 @@ BOOL CFifthDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;
-
+	m_pointMouse.x = 0;
+	m_pointMouse.y = 0;
 	// TODO: 在此添加重新初始化代码
 	// (SDI 文档将重用该文档)
 

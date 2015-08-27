@@ -92,6 +92,14 @@ void CFifthView::OnDraw(CDC* pDC)
 	x = xOrg + 20;
 	y = (yOrg - yMin) / 2;
 	pDC->TextOut(x, y, _T("Y轴"));
+	// 显示鼠标单击的坐标
+	CString strText;
+	x = pDoc->m_pointMouse.x;
+	y = pDoc->m_pointMouse.y;
+	strText.Format(_T("鼠标点击在点(%d,%d)上面"), x, y);
+	x = xOrg;
+	y = yOrg + 40;
+	pDC->TextOutW(x, y, strText);
 	// TODO: 在此处为本机数据添加绘制代码
 }
 
@@ -145,7 +153,11 @@ void CFifthView::OnLButtonDown(UINT nFlags, CPoint point)
 	CFifthDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (pDoc) {
-		//计算坐标
+		// 更新坐标显示
+		pDoc->m_pointMouse.x = point.x;
+		pDoc->m_pointMouse.y = point.y;
+		Invalidate();
+		// 计算坐标
 		const double eps = 0.01;
 		double x = (point.x - pDoc->xOrg) / pDoc->dbXRatio + pDoc->dbXMin;
 		double y = (pDoc->yOrg - point.y) / pDoc->dbYRatio + pDoc->dbYMin;

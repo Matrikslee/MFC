@@ -28,6 +28,8 @@ public:
 	// 换算数据
 	const double dbXRatio = (xMax - xOrg) / (dbXMax - dbXMin);
 	const double dbYRatio = (yOrg - yMin) / (dbYMax - dbYMin);
+	// 要显示的坐标
+	CPoint m_pointMouse;
 // 操作
 public:
 
