@@ -11,7 +11,7 @@
 
 #include "ForthDoc.h"
 #include "ForthView.h"
-
+#include "Math.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(CForthView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 // CForthView 构造/析构
@@ -50,13 +51,47 @@ BOOL CForthView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CForthView 绘制
 
-void CForthView::OnDraw(CDC* /*pDC*/)
+void CForthView::OnDraw(CDC* pDC)
 {
 	CForthDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
-
+	// 画sin(x) 曲线
+	// 定义常量
+	const double PI = 3.14159265359;
+	const double dbYMax = 1.0;
+	const double dbYMin = -1.0;
+	const double dbXMin = 0.0;
+	const double dbXMax = 2 * PI;
+	const int iPt = 200;
+	const int xOrg = 50;
+	const int yOrg = 350;
+	const int xMax = 700;
+	const int yMin = 20;
+	// 换算数据并画出折线
+	double dbXRatio = (xMax - xOrg) / (dbXMax - dbXMin);
+	double dbYRatio = (yOrg - yMin) / (dbYMax - dbYMin);
+	int x = xOrg;
+	int y = yOrg;
+	pDC->MoveTo(x, y);
+	for (int i = 0; i <= iPt; ++i) {
+		x = (int)(dbXRatio*(dbXMax / iPt*i - dbXMin) + xOrg);
+		y = (int)(yOrg - dbYRatio*(sin(dbXMax / iPt*i) - dbYMin));
+		pDC->LineTo(x, y);
+	}
+	// 画坐标轴
+	pDC->MoveTo(xOrg, yOrg);
+	pDC->LineTo(xMax, yOrg);
+	pDC->MoveTo(xOrg, yOrg);
+	pDC->LineTo(xOrg, yMin);
+	// 写轴标题
+	x = (xMax - xOrg) / 2;
+	y = yOrg + 20;
+	pDC->TextOut(x, y, _T("X轴"));
+	x = xOrg + 20;
+	y = (yOrg - yMin) / 2;
+	pDC->TextOut(x, y, _T("Y轴"));
 	// TODO: 在此处为本机数据添加绘制代码
 }
 
@@ -102,3 +137,11 @@ CForthDoc* CForthView::GetDocument() const // 非调试版本是内联的
 
 
 // CForthView 消息处理程序
+
+
+void CForthView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CView::OnLButtonDown(nFlags, point);
+}
