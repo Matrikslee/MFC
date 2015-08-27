@@ -28,6 +28,8 @@ BEGIN_MESSAGE_MAP(CSecondView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_RBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 // CSecondView 构造/析构
@@ -114,7 +116,15 @@ void CSecondView::OnLButtonDown(UINT nFlags, CPoint point)
 	CSecondDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (pDoc) {
-
+		for (int i = pDoc->m_nBubbleCount - 1; i >= 0; -- i) {
+			if (pDoc->m_rectBubble[i].PtInRect(point)) {
+				SetCapture();
+				pDoc->m_bCaptured = TRUE;
+				pDoc->m_pointMouse = point;
+				pDoc->m_nCapturedRect = i;
+				break;
+			}
+		}
 	}
 	CView::OnLButtonDown(nFlags, point);
 }
@@ -135,4 +145,37 @@ void CSecondView::OnRButtonDown(UINT nFlags, CPoint point)
 		}
 	}
 	CView::OnRButtonDown(nFlags, point);
+}
+
+
+void CSecondView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	CSecondDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (pDoc) {
+		if (pDoc->m_bCaptured) {
+			::ReleaseCapture();
+			pDoc->m_bCaptured = FALSE;
+		}
+	}
+	CView::OnLButtonUp(nFlags, point);
+}
+
+
+void CSecondView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	CSecondDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (pDoc) {
+		if (pDoc->m_bCaptured) {
+			InvalidateRect(pDoc->m_rectBubble[pDoc->m_nCapturedRect]);
+			CSize offset(point - pDoc->m_pointMouse);
+			pDoc->m_rectBubble[pDoc->m_nCapturedRect] += offset;
+			InvalidateRect(pDoc->m_rectBubble[pDoc->m_nCapturedRect]);
+			pDoc->m_pointMouse = point;
+		}
+	}
+	CView::OnMouseMove(nFlags, point);
 }

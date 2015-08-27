@@ -16,6 +16,9 @@ protected: // 仅从序列化创建
 public:
 	CRect m_rectBubble[MAX_BUBBLE];
 	int m_nBubbleCount;
+	int m_nCapturedRect;
+	CPoint m_pointMouse;
+	BOOL m_bCaptured;
 // 操作
 public:
 

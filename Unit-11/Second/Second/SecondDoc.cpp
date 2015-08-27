@@ -42,6 +42,8 @@ BOOL CSecondDoc::OnNewDocument()
 	if (!CDocument::OnNewDocument())
 		return FALSE;
 	m_nBubbleCount = 0;
+	m_nCapturedRect = 0;
+	m_bCaptured = FALSE;
 	// TODO: 在此添加重新初始化代码
 	// (SDI 文档将重用该文档)
 
