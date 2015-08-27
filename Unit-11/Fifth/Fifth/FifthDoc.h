@@ -14,7 +14,20 @@ protected: // 仅从序列化创建
 
 // 特性
 public:
-
+	// 定义曲线常量
+	const double PI = 3.14159265359;
+	const double dbYMax = 1.0;
+	const double dbYMin = -1.0;
+	const double dbXMin = 0.0;
+	const double dbXMax = 2 * PI;
+	const int iPt = 200;
+	const int xOrg = 50;
+	const int yOrg = 350;
+	const int xMax = 700;
+	const int yMin = 20;
+	// 换算数据
+	const double dbXRatio = (xMax - xOrg) / (dbXMax - dbXMin);
+	const double dbYRatio = (yOrg - yMin) / (dbYMax - dbYMin);
 // 操作
 public:
 

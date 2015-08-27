@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(CFifthView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 // CFifthView 构造/析构
@@ -50,13 +51,47 @@ BOOL CFifthView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CFifthView 绘制
 
-void CFifthView::OnDraw(CDC* /*pDC*/)
+void CFifthView::OnDraw(CDC* pDC)
 {
 	CFifthDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
-
+	// 画sin(x) 曲线
+	// 从Document类获取常量数据
+	const double PI = pDoc->PI;
+	const double dbYMax = pDoc->dbYMax;
+	const double dbYMin = pDoc->dbYMin;
+	const double dbXMin = pDoc->dbXMin;
+	const double dbXMax = pDoc->dbXMax;
+	const int iPt = pDoc->iPt;
+	const int xOrg = pDoc->xOrg;
+	const int yOrg = pDoc->yOrg;
+	const int xMax = pDoc->xMax;
+	const int yMin = pDoc->yMin;
+	const double dbXRatio = pDoc->dbXRatio;
+	const double dbYRatio = pDoc->dbYRatio;
+	// 定义变量
+	int x = xOrg;
+	int y = yOrg;
+	pDC->MoveTo(x, y);
+	for (int i = 0; i <= iPt; ++i) {
+		x = (int)(dbXRatio*(dbXMax / iPt*i - dbXMin) + xOrg);
+		y = (int)(yOrg - dbYRatio*(sin(dbXMax / iPt*i) - dbYMin));
+		pDC->LineTo(x, y);
+	}
+	// 画坐标轴
+	pDC->MoveTo(xOrg, yOrg);
+	pDC->LineTo(xMax, yOrg);
+	pDC->MoveTo(xOrg, yOrg);
+	pDC->LineTo(xOrg, yMin);
+	// 写轴标题
+	x = (xMax - xOrg) / 2;
+	y = yOrg + 20;
+	pDC->TextOut(x, y, _T("X轴"));
+	x = xOrg + 20;
+	y = (yOrg - yMin) / 2;
+	pDC->TextOut(x, y, _T("Y轴"));
 	// TODO: 在此处为本机数据添加绘制代码
 }
 
@@ -102,3 +137,23 @@ CFifthDoc* CFifthView::GetDocument() const // 非调试版本是内联的
 
 
 // CFifthView 消息处理程序
+
+
+void CFifthView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	CFifthDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (pDoc) {
+		//计算坐标
+		const double eps = 0.01;
+		double x = (point.x - pDoc->xOrg) / pDoc->dbXRatio + pDoc->dbXMin;
+		double y = (pDoc->yOrg - point.y) / pDoc->dbYRatio + pDoc->dbYMin;
+		if (fabs(y - sin(x)) < eps) {
+			CString strDisplay;
+			strDisplay.Format(_T("X = %d, Y = %d"), point.x, point.y);
+			MessageBox(strDisplay);
+		}
+	}
+	CView::OnLButtonDown(nFlags, point);
+}
