@@ -1,0 +1,9 @@
+Debug/
+.vs/
+ipch/
+*exe
+*obj
+*ilk
+*pch
+*sdf
+*aps
