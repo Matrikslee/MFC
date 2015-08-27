@@ -58,20 +58,20 @@ void CForthView::OnDraw(CDC* pDC)
 	if (!pDoc)
 		return;
 	// 画sin(x) 曲线
-	// 定义常量
-	const double PI = 3.14159265359;
-	const double dbYMax = 1.0;
-	const double dbYMin = -1.0;
-	const double dbXMin = 0.0;
-	const double dbXMax = 2 * PI;
-	const int iPt = 200;
-	const int xOrg = 50;
-	const int yOrg = 350;
-	const int xMax = 700;
-	const int yMin = 20;
-	// 换算数据并画出折线
-	double dbXRatio = (xMax - xOrg) / (dbXMax - dbXMin);
-	double dbYRatio = (yOrg - yMin) / (dbYMax - dbYMin);
+	// 从Document类获取常量数据
+	const double PI = pDoc->PI;
+	const double dbYMax = pDoc->dbYMax;
+	const double dbYMin = pDoc->dbYMin;
+	const double dbXMin = pDoc->dbXMin;
+	const double dbXMax = pDoc->dbXMax;
+	const int iPt = pDoc->iPt;
+	const int xOrg = pDoc->xOrg;
+	const int yOrg = pDoc->yOrg;
+	const int xMax = pDoc->xMax;
+	const int yMin = pDoc->yMin;
+	const double dbXRatio = pDoc->dbXRatio;
+	const double dbYRatio = pDoc->dbYRatio;
+	// 定义变量
 	int x = xOrg;
 	int y = yOrg;
 	pDC->MoveTo(x, y);
@@ -142,6 +142,18 @@ CForthDoc* CForthView::GetDocument() const // 非调试版本是内联的
 void CForthView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-
+	CForthDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (pDoc) {
+		//计算坐标
+		const double eps = 0.01;
+		double x = (point.x - pDoc->xOrg) / pDoc->dbXRatio + pDoc->dbXMin;
+		double y = (pDoc->yOrg - point.y) / pDoc->dbYRatio + pDoc->dbYMin;
+		if (fabs(y - sin(x)) < eps) {
+			CString strDisplay;
+			strDisplay.Format(_T("X = %d, Y = %d"), point.x, point.y);
+			MessageBox(strDisplay);
+		}
+	}
 	CView::OnLButtonDown(nFlags, point);
 }
