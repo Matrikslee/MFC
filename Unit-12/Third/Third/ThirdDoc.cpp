@@ -40,11 +40,10 @@ CThirdDoc::~CThirdDoc()
 void CThirdDoc::gameReset() {
 	++gameLevel;
 	// 初始化猫鼠坐标原点
-	m_nCatXOrg = rand() % (m_nGameFrameWidth - m_nCatWidth);
-	m_nCatYOrg = rand() % (m_nGameFrameHeight - m_nCatHeight);
-	m_nMouseXOrg = rand() % (m_nGameFrameWidth - m_nMouseWidth);
-	m_nMouseYOrg = rand() % (m_nGameFrameHeight - m_nMouseHeight);
-	m_rectGameFrame = CRect(m_nGameFrameXOrg, m_nGameFrameYOrg, m_nGameFrameXOrg + m_nGameFrameWidth, m_nGameFrameYOrg + m_nGameFrameHeight);
+	m_nCatXOrg = rand() % (m_nGameFrameWidth - m_nCatWidth) + m_rectGameFrame.left + 1;
+	m_nCatYOrg = rand() % (m_nGameFrameHeight - m_nCatHeight) + m_rectGameFrame.top + 1;
+	m_nMouseXOrg = rand() % (m_nGameFrameWidth - m_nMouseWidth) + m_rectGameFrame.left + 1;
+	m_nMouseYOrg = rand() % (m_nGameFrameHeight - m_nMouseHeight) + m_rectGameFrame.top + 1;
 }
 
 bool CThirdDoc::isGameOver() {
@@ -73,7 +72,9 @@ BOOL CThirdDoc::OnNewDocument()
 	m_nMouseHeight = BM.bmHeight;
 	m_nMouseWidth = BM.bmWidth;
 	//初始化游戏数据
+	m_rectGameFrame = CRect(m_nGameFrameXOrg, m_nGameFrameYOrg, m_nGameFrameXOrg + m_nGameFrameWidth, m_nGameFrameYOrg + m_nGameFrameHeight);
 	gameLevel = 0;
+	m_nKeyDown = 0;
 	gameReset();
 	// TODO: 在此添加重新初始化代码
 	// (SDI 文档将重用该文档)

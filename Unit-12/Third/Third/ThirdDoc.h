@@ -31,6 +31,7 @@ public:
 	const int m_nGameFrameWidth = 500;
 	const int m_nGameFrameHeight = 300;
 	int gameLevel;
+	LONG m_nKeyDown;
 // ²Ù×÷
 public:
 	void gameReset();

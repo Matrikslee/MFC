@@ -59,20 +59,20 @@ void CThirdView::OnDraw(CDC* pDC)
 	if (!pDoc)
 		return;
 	CString strLine;
-	strLine.Format(_T("Levle = %d"), pDoc->gameLevel);
+	strLine.Format(_T("Level = %d"), pDoc->gameLevel);
 	pDC->TextOutW(10, 10, strLine);
 	pDC->Rectangle(pDoc->m_rectGameFrame);
 	CDC MemDC;
 	MemDC.CreateCompatibleDC(NULL);
 	// 显示猫
 	MemDC.SelectObject(&pDoc->m_bitmapCat);
-	int x = pDoc->m_nGameFrameXOrg + pDoc->m_nCatXOrg;
-	int y = pDoc->m_nGameFrameYOrg + pDoc->m_nCatYOrg;
+	int x = pDoc->m_nCatXOrg;
+	int y = pDoc->m_nCatYOrg;
 	pDC->BitBlt(x, y, x + pDoc->m_nCatWidth, y + pDoc->m_nCatHeight, &MemDC, 0, 0, SRCCOPY);
 	// 显示鼠
 	MemDC.SelectObject(&pDoc->m_bitmapMouse);
-	x = pDoc->m_nGameFrameXOrg + pDoc->m_nMouseXOrg;
-	y = pDoc->m_nGameFrameYOrg + pDoc->m_nMouseYOrg;
+	x = pDoc->m_nMouseXOrg;
+	y = pDoc->m_nMouseYOrg;
 	pDC->BitBlt(x, y, x + pDoc->m_nMouseWidth, y + pDoc->m_nMouseHeight, &MemDC, 0, 0, SRCCOPY);
 	// TODO: 在此处为本机数据添加绘制代码
 }
@@ -134,37 +134,52 @@ void CThirdView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	CThirdDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
-	const int delta = 30;
 	if (pDoc) {
 		switch (nChar)
 		{
 		case VK_UP :
-			if (pDoc->m_nCatYOrg > 0) {
-				pDoc->m_nCatYOrg -= delta;
+			for (int i = 0; i < 30; ++i) {
+				if (pDoc->m_nCatYOrg <= pDoc->m_rectGameFrame.top + 1) {
+					break;
+				}
+				--pDoc->m_nCatYOrg;
+				InvalidateRect(pDoc->m_rectGameFrame, TRUE);
 			}
 			break;
 		case VK_DOWN :
-			if (pDoc->m_nCatYOrg < pDoc->m_nGameFrameHeight) {
-				pDoc->m_nCatYOrg += delta;
+			for (int i = 0; i < 30; ++i) {
+				if (pDoc->m_nCatYOrg + pDoc->m_nCatHeight >= pDoc->m_rectGameFrame.bottom - 1) {
+					break;
+				}
+				++pDoc->m_nCatYOrg;
+				InvalidateRect(pDoc->m_rectGameFrame, TRUE);
 			}
 			break;
 		case VK_LEFT :
-			if (pDoc->m_nCatXOrg > 0) {
-				pDoc->m_nCatXOrg -= delta;
+			for (int i = 0; i < 30; ++i) {
+				if (pDoc->m_nCatXOrg <= pDoc->m_rectGameFrame.left + 1) {
+					break;
+				}
+				--pDoc->m_nCatXOrg;
+				InvalidateRect(pDoc->m_rectGameFrame, TRUE);
 			}
 			break;
 		case VK_RIGHT :
-			if (pDoc->m_nCatXOrg < pDoc->m_nGameFrameWidth) {
-				pDoc->m_nCatXOrg += delta;
+			for (int i = 0; i < 30; ++i) {
+				if (pDoc->m_nCatXOrg + pDoc->m_nCatWidth >= pDoc->m_rectGameFrame.right - 1) {
+					break;
+				}
+				++pDoc->m_nCatXOrg;
+				InvalidateRect(pDoc->m_rectGameFrame, TRUE);
 			}
 			break;
 		default :
 			break;
 		}
-		Invalidate();
 		//InvalidateRect(pDoc->m_rectGameFrame);
 		if (pDoc->isGameOver()) {
 			pDoc->gameReset();
+			Invalidate();
 		}
 	}
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
