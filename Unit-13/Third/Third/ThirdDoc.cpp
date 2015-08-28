@@ -10,8 +10,8 @@
 #endif
 
 #include "ThirdDoc.h"
-
 #include <propkey.h>
+#include "Math.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -37,11 +37,44 @@ CThirdDoc::~CThirdDoc()
 {
 }
 
+void CThirdDoc::gameReset() {
+	++gameLevel;
+	// 初始化猫鼠坐标原点
+	m_nCatXOrg = rand() % (m_nGameFrameWidth - m_nCatWidth);
+	m_nCatYOrg = rand() % (m_nGameFrameHeight - m_nCatHeight);
+	m_nMouseXOrg = rand() % (m_nGameFrameWidth - m_nMouseWidth);
+	m_nMouseYOrg = rand() % (m_nGameFrameHeight - m_nMouseHeight);
+	m_rectGameFrame = CRect(m_nGameFrameXOrg, m_nGameFrameYOrg, m_nGameFrameXOrg + m_nGameFrameWidth, m_nGameFrameYOrg + m_nGameFrameHeight);
+}
+
+bool CThirdDoc::isGameOver() {
+	bool res = false;
+	int x = abs(m_nCatXOrg - m_nMouseXOrg);
+	int y = abs(m_nCatYOrg - m_nMouseYOrg);
+	if ((x < m_nMouseWidth || x < m_nCatWidth) && (y < m_nMouseHeight || y < m_nCatHeight)) {
+		res = true;
+	}
+	return res;
+}
+
 BOOL CThirdDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;
-
+	srand(time(NULL));
+	// 载入位图资源,读取位图信息
+	m_bitmapCat.LoadBitmapW(IDB_BITMAP1);
+	m_bitmapMouse.LoadBitmapW(IDB_BITMAP2);
+	BITMAP BM;
+	m_bitmapCat.GetBitmap(&BM);
+	m_nCatHeight = BM.bmHeight;
+	m_nCatWidth = BM.bmWidth;
+	m_bitmapMouse.GetBitmap(&BM);
+	m_nMouseHeight = BM.bmHeight;
+	m_nMouseWidth = BM.bmWidth;
+	//初始化游戏数据
+	gameLevel = 0;
+	gameReset();
 	// TODO: 在此添加重新初始化代码
 	// (SDI 文档将重用该文档)
 

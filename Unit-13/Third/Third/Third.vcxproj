@@ -216,6 +216,8 @@
     <None Include="res\Third.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\bitmap1.bmp" />
+    <Image Include="res\bitmap2.bmp" />
     <Image Include="res\Third.ico" />
     <Image Include="res\ThirdDoc.ico" />
     <Image Include="res\Toolbar.bmp" />
@@ -223,4 +225,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="Third.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

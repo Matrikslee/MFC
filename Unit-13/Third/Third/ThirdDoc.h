@@ -14,10 +14,27 @@ protected: // 仅从序列化创建
 
 // 特性
 public:
-
+	// 定义 CBitmap 类对象以及位图的高度和宽度变量
+	CBitmap m_bitmapCat;
+	CBitmap m_bitmapMouse;
+	int m_nCatHeight;
+	int m_nCatWidth;
+	int m_nMouseHeight;
+	int m_nMouseWidth;
+	int m_nCatXOrg;
+	int m_nCatYOrg;
+	int m_nMouseXOrg;
+	int m_nMouseYOrg;
+	CRect m_rectGameFrame;
+	const int m_nGameFrameXOrg = 100;
+	const int m_nGameFrameYOrg = 100;
+	const int m_nGameFrameWidth = 500;
+	const int m_nGameFrameHeight = 300;
+	int gameLevel;
 // 操作
 public:
-
+	void gameReset();
+	bool isGameOver();
 // 重写
 public:
 	virtual BOOL OnNewDocument();
