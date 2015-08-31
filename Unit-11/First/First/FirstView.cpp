@@ -127,22 +127,6 @@ void CFirstView::OnLButtonDown(UINT nFlags, CPoint point)
 }
 
 
-//void CFirstView::OnMButtonDown(UINT nFlags, CPoint point)
-//{
-//	// TODO: 在此添加消息处理程序代码和/或调用默认值
-//
-//	CView::OnMButtonDown(nFlags, point);
-//}
-
-
-//void CFirstView::OnMButtonDown(UINT nFlags, CPoint point)
-//{
-//	// TODO: 在此添加消息处理程序代码和/或调用默认值
-//	MessageBox(_T("A"));
-//	CView::OnMButtonDown(nFlags, point);
-//}
-
-
 void CFirstView::OnRButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
@@ -153,14 +137,14 @@ void CFirstView::OnRButtonDown(UINT nFlags, CPoint point)
 	}
 	else {
 		bool isDeleted = false;
-		for (int i = pDoc->m_nBubbleCount - 1; i >= 0; --i) {
-			if (point.x >= pDoc->m_rectBubble[i].left && point.x <= pDoc->m_rectBubble[i].right
-				&& point.y >= pDoc->m_rectBubble[i].top && point.y <= pDoc->m_rectBubble[i].bottom) {
+		for (int i = pDoc->m_nBubbleCount - 1; i >= 0; --i) {\
+			if (pDoc->m_rectBubble[i].PtInRect(point)) {
+				CRect tmp = pDoc->m_rectBubble[i];
 				for (int j = i; j < pDoc->m_nBubbleCount - 1; ++j) {
 					pDoc->m_rectBubble[j] = pDoc->m_rectBubble[j + 1];
 				}
 				--pDoc->m_nBubbleCount;
-				Invalidate();
+				InvalidateRect(tmp, TRUE);
 				isDeleted = true;
 				break;
 			}
