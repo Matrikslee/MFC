@@ -14,7 +14,9 @@ protected: // 仅从序列化创建
 
 // 特性
 public:
-
+	int hour;
+	int minute;
+	int second;
 // 操作
 public:
 

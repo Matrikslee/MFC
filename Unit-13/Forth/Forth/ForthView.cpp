@@ -8,7 +8,7 @@
 #ifndef SHARED_HANDLERS
 #include "Forth.h"
 #endif
-
+#include "Math.h"
 #include "ForthDoc.h"
 #include "ForthView.h"
 
@@ -56,13 +56,40 @@ void CForthView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
+	// 定义常量
+	const double PI = 3.1415926;
+	const int xOrg = 500;
+	const int yOrg = 200;
+	const int radius = 100;
+	const int hourLen = 80;
+	const int minuteLen = 70;
+	const int secondLen = 60;
+	double x, y;
 	// 画钟表外框
-	CRect tmp(100, 100, 300, 300);
+	CRect tmp(xOrg-radius, yOrg-radius, xOrg+radius, yOrg+radius);
 	pDC->Ellipse(tmp);
 	// 刻度
 	for (int i = 0; i < 12; ++i) {
-
+		x = radius*cos(i*PI / 6);
+		y = radius*sin(i*PI / 6);
+		pDC->MoveTo(xOrg + (int)(x*.9), yOrg + (int)(y*.9));
+		pDC->LineTo(xOrg + (int)x, yOrg + (int)y);
 	}
+	// 时针
+	x = hourLen*cos(PI * 3 / 2 + pDoc->hour*PI / 6);
+	y = hourLen*sin(PI * 3 / 2 + pDoc->hour*PI / 6);
+	pDC->MoveTo(xOrg, yOrg);
+	pDC->LineTo(xOrg + (int) x, yOrg + (int) y );
+	// 分针
+	x = minuteLen*cos(PI * 3 / 2 + pDoc->minute*PI / 30);
+	y = minuteLen*sin(PI * 3 / 2 + pDoc->minute*PI / 30);
+	pDC->MoveTo(xOrg, yOrg);
+	pDC->LineTo(xOrg + (int)x, yOrg + (int)y);
+	// 秒针
+	x = secondLen*cos(PI * 3 / 2 + pDoc->second*PI / 30);
+	y = secondLen*sin(PI * 3 / 2 + pDoc->second*PI / 30);
+	pDC->MoveTo(xOrg, yOrg);
+	pDC->LineTo(xOrg + (int)x, yOrg + (int)y);
 	// TODO: 在此处为本机数据添加绘制代码
 }
 

@@ -41,7 +41,7 @@ BOOL CForthDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;
-
+	hour = minute = second = 0;
 	// TODO: 在此添加重新初始化代码
 	// (SDI 文档将重用该文档)
 
