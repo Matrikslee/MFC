@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(CForthView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 // CForthView 构造/析构
@@ -135,3 +136,11 @@ CForthDoc* CForthView::GetDocument() const // 非调试版本是内联的
 
 
 // CForthView 消息处理程序
+
+
+void CForthView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CView::OnLButtonDown(nFlags, point);
+}

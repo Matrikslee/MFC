@@ -191,6 +191,7 @@
   <ItemGroup>
     <ClInclude Include="Forth.h" />
     <ClInclude Include="ForthDoc.h" />
+    <ClInclude Include="ForthSetTimeDialog.h" />
     <ClInclude Include="ForthView.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
@@ -200,6 +201,7 @@
   <ItemGroup>
     <ClCompile Include="Forth.cpp" />
     <ClCompile Include="ForthDoc.cpp" />
+    <ClCompile Include="ForthSetTimeDialog.cpp" />
     <ClCompile Include="ForthView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -213,6 +215,7 @@
     <ResourceCompile Include="Forth.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="res\Forth.rc2" />
   </ItemGroup>
   <ItemGroup>
@@ -223,4 +226,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="Forth.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
