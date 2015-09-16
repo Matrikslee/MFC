@@ -424,15 +424,274 @@
 
 #### 内容提要
 
+- 	图形设备接口和资源的基本概念。
+- 	画笔、画刷、位图和菜单等对象和资源的用途。
+- 	简单的动画编程和资源编辑器的使用方法。
+
 #### 详细内容
+
+1.  Windows 应用程序资源
+	
+	通过资源编辑器来编辑程序需要的所有资源，例如：位图、菜单、光标、图标等等。
+	
+	只有通过资源编辑器添加的资源才能获取资源标识符，只有资源标识符才能在程序代码中被使用。
+
+2. 	位图资源的使用
+	
+	在MFC中，可以将.bmp格式的位图文件作为资源添加到项目中。
+
+	对资源进行添加之后，可以通过资源标识符对位图资源进行访问。
+
+	在MFC中，用CBitmap类对象存放位图的参数。CBitmap类有一下几个重要的成员函数：
+
+	- 	载入位图资源使用的LoadBitmap()函数：
+		
+		该函数的原型为:
+
+		-	BOOL LoadBitmap(LPCTSTR lpszResourceName);
+		-	BOOL LoadBitmap(UINT nIDResource);
+		
+		成功载入位图资源时返回真，否则返回假。
+
+	-	读取位图信息的GetBitmap()函数：
+		
+		其原型为
+
+		-	int GetBitmap(BITMAP* pBitMap);
+	
+		其中参数pBitMap为一个BITMAP结构体对象的地址。BITMAP结构体类型用于存放位图有关信息：
+
+		```cpp
+		typedef struct tagBITMAP{
+			int 	bmType;   		//位图类型（0）
+			int 	bmWidth;  		//位图宽
+			int		bmHeight; 		//位图高
+			int		bmWidthBytes;	//位图每行的字节数
+			BYTE	bmPlanes;		//位平面数
+			BYTE	bmBitsPixel;	//每点字节数
+			LPVOID	bmBits;			//位图数据指针
+		} BITMAP;
+		```
+	
+	与一般的图形相比，位图的显示过程稍显复杂。首先应建立一合适的内存设备环境：
+
+	```cpp
+	CDC MemDC;
+	MemDC.CreateCompatibleDC(NULL);
+	```
+	
+	并将位图选入该设备环境:
+
+	```cpp
+	MemDC.SelectObject(&m_Bitmap);
+	```
+	
+	然后可用CDC类的BitBlt()成员函数从内存设备环境中将位图复制到指定设备（如窗口或打印机）。BitBlt()函数的原型为：
+
+	- BOOL BitBlt(int x, int y, int nWidth, int nHeight, CDC* pSrcDC, int xSrc, int ySrc, DWORD dwRop);
+
+	这样，一个位图资源才能完成从资源到内存到设备的输出。
+
+#### 习题解答
+
+*	习题12.3编码过程
+	
+	习题12.3要求：编写“猫捉老鼠”游戏程序。用户通过键盘的上、下、左、右方向键控制猫，5只老鼠由定时器控制在窗口中自由活动，可能随时改变行走方向，遇到窗口的边界则折回。猫碰到老鼠后则该鼠被吃，不再显示。吃掉所有老鼠后游戏结束并显示所用时间。可为游戏增加难度菜单，控制老鼠的移动速度。
+
+	PS：由于时间关系，个人只完成了其中一小部分功能。
+
+	1. 	第一步、添加位图资源：猫和老鼠，获取其标识符分别为`IDB_BITMAP1`和`IDB_BITMAP2`。
+	2. 	第二步、修改文档类头文件，添加文档类的成员变量和成员函数
+		
+		```cpp
+		class CMyDoc : public CDocument
+		{
+		protected: // 仅从序列化创建
+			CMyDoc();
+			DECLARE_DYNCREATE(CMyDoc)
+		// 特性
+		public:
+			// 定义 CBitmap 类对象以及位图的高度和宽度变量
+			CBitmap m_bitmapCat;
+			CBitmap m_bitmapMouse;
+			int m_nCatHeight;
+			int m_nCatWidth;
+			int m_nMouseHeight;
+			int m_nMouseWidth;
+			int m_nCatXOrg;
+			int m_nCatYOrg;
+			int m_nMouseXOrg;
+			int m_nMouseYOrg;
+			CRect m_rectGameFrame;
+			const int m_nGameFrameXOrg = 100;
+			const int m_nGameFrameYOrg = 100;
+			const int m_nGameFrameWidth = 500;
+			const int m_nGameFrameHeight = 300;
+			int gameLevel;
+			LONG m_nKeyDown;
+		// 操作
+		public:
+			void gameReset();
+			bool isGameOver();
+		// 重写
+		public:
+			virtual BOOL OnNewDocument();
+			virtual void Serialize(CArchive& ar);			
+		//...(省略其余代码)
+		};
+		```
+	3.  实现成员函数的定义并对成员变量进行初始化:
+	
+		```cpp
+		BOOL CMyDoc::OnNewDocument()
+		{
+			if (!CDocument::OnNewDocument())
+				return FALSE;
+			srand((unsigned int)time(NULL));
+			// 载入位图资源,读取位图信息
+			m_bitmapCat.LoadBitmapW(IDB_BITMAP1);
+			m_bitmapMouse.LoadBitmapW(IDB_BITMAP2);
+			BITMAP BM;
+			m_bitmapCat.GetBitmap(&BM);
+			m_nCatHeight = BM.bmHeight;
+			m_nCatWidth = BM.bmWidth;
+			m_bitmapMouse.GetBitmap(&BM);
+			m_nMouseHeight = BM.bmHeight;
+			m_nMouseWidth = BM.bmWidth;
+			//初始化游戏数据
+			m_rectGameFrame = CRect(
+				m_nGameFrameXOrg, 
+				m_nGameFrameYOrg, 
+				m_nGameFrameXOrg + m_nGameFrameWidth, 
+				m_nGameFrameYOrg + m_nGameFrameHeight);
+			gameLevel = 0;
+			m_nKeyDown = 0;
+			gameReset();
+			// TODO: 在此添加重新初始化代码
+			// (SDI 文档将重用该文档)
+			return TRUE;
+		}
+		void CMyDoc::gameReset() {
+			++gameLevel;
+			// 初始化猫鼠坐标原点
+			m_nCatXOrg = rand() % (m_nGameFrameWidth - m_nCatWidth) 
+						* m_rectGameFrame.left + 1;
+			m_nCatYOrg = rand() % (m_nGameFrameHeight - m_nCatHeight) 
+						* m_rectGameFrame.top + 1;
+			m_nMouseXOrg = rand() % (m_nGameFrameWidth - m_nMouseWidth) 
+						* m_rectGameFrame.left + 1;
+			m_nMouseYOrg = rand() % (m_nGameFrameHeight - m_nMouseHeight) 
+						* m_rectGameFrame.top + 1;
+		}
+		bool CMyDoc::isGameOver() {
+			bool res = false;
+			int x = abs(m_nCatXOrg - m_nMouseXOrg);
+			int y = abs(m_nCatYOrg - m_nMouseYOrg);
+			if ((x < m_nMouseWidth || x < m_nCatWidth) 
+				&& (y < m_nMouseHeight || y < m_nCatHeight))
+			{
+				res = true;
+			}
+			return res;
+		}
+		```
+
+	4. 	为视图类添加键盘消息WM_KEYDOWN并实现其消息处理函数:
+		
+		```cpp
+		void CThirdView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+		{
+			// TODO: 在此添加消息处理程序代码和/或调用默认值
+			CThirdDoc* pDoc = GetDocument();
+			ASSERT_VALID(pDoc);
+			if (pDoc) {
+				switch (nChar)
+				{
+				case VK_UP :
+					for (int i = 0; i < 30; ++i) {
+						if (pDoc->m_nCatYOrg <= pDoc->m_rectGameFrame.top + 1) {
+							break;
+						}
+						--pDoc->m_nCatYOrg;
+					}
+					break;
+				case VK_DOWN :
+					for (int i = 0; i < 30; ++i) {
+						if (pDoc->m_nCatYOrg + pDoc->m_nCatHeight 
+								>= pDoc->m_rectGameFrame.bottom - 1) {
+							break;
+						}
+						++pDoc->m_nCatYOrg;
+					}
+					break;
+				case VK_LEFT :
+					for (int i = 0; i < 30; ++i) {
+						if (pDoc->m_nCatXOrg <= pDoc->m_rectGameFrame.left + 1) {
+							break;
+						}
+						--pDoc->m_nCatXOrg;
+					}
+					break;
+				case VK_RIGHT :
+					for (int i = 0; i < 30; ++i) {
+						if (pDoc->m_nCatXOrg + pDoc->m_nCatWidth 
+								>= pDoc->m_rectGameFrame.right - 1) {
+							break;
+						}
+						++pDoc->m_nCatXOrg;
+					}
+					break;
+				default :
+					break;
+				}
+				if (pDoc->isGameOver()) {
+					pDoc->gameReset();
+				}
+				InvalidateRect(pDoc->m_rectGameFrame);
+			}
+			CView::OnKeyDown(nChar, nRepCnt, nFlags);
+		}
+		```
+	5. 	第五步、重写视图类OnDraw()函数：
+
+		```cpp
+		void CMyView::OnDraw(CDC* pDC)
+		{
+			CMyDoc* pDoc = GetDocument();
+			ASSERT_VALID(pDoc);
+			if (!pDoc)
+				return;
+			CString strLine;
+			strLine.Format(_T("Level = %d"), pDoc->gameLevel);
+			pDC->TextOutW(10, 10, strLine);
+			pDC->Rectangle(pDoc->m_rectGameFrame);
+			CDC MemDC;
+			MemDC.CreateCompatibleDC(NULL);
+			// 显示猫
+			MemDC.SelectObject(&pDoc->m_bitmapCat);
+			int x = pDoc->m_nCatXOrg;
+			int y = pDoc->m_nCatYOrg;
+			pDC->BitBlt(x, y, 
+				x + pDoc->m_nCatWidth, 
+				y + pDoc->m_nCatHeight, 
+				&MemDC, 0, 0, SRCCOPY);
+			// 显示鼠
+			MemDC.SelectObject(&pDoc->m_bitmapMouse);
+			x = pDoc->m_nMouseXOrg;
+			y = pDoc->m_nMouseYOrg;
+			pDC->BitBlt(x, y, 
+				x + pDoc->m_nMouseWidth, 
+				y + pDoc->m_nMouseHeight, 
+				&MemDC, 0, 0, SRCCOPY);
+			// TODO: 在此处为本机数据添加绘制代码
+		}
+		```
+
+	程序效果截图
+
+	![程序效果截图](http://ww1.sinaimg.cn/large/0063AxbLgw1ew4f7kwtfyj30sh0fgmyh.jpg)
 
 ### 第十三章：对话框
-
-#### 内容提要
-
-#### 详细内容
-
-### 第十四章：控件
 
 #### 内容提要
 
