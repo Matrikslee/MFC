@@ -246,9 +246,179 @@
 
 ### 第十一章：文档/试图结构
 
+
 #### 内容提要
 
+* 理解文档/视图的概念，即文档类和视图类的关系。
+* 深入学习视图类以及其成员变量和成员函数的功能并熟练使用。
+* 深入学习文档类以及其成员变量和成员函数的功能并熟练使用。
+* 理解文档/视图类之间的协作关系,并做到能够熟练的使用文档类进行数据存储,然后在视图类中使用，以达到数据和功能相分离的目标。
+* 通过视图类成员函数的调用使客户区重绘。
+* 学习定时器消息的功能和使用。
+
 #### 详细内容
+
+1.  熟悉MFC两种类型的文档/视图结构：
+
+	* 单文档界面（Single Document Interface， SDI）应用程序
+	* 多文档界面（Multiple Document Interface， MDI）应用程序
+
+2.  使用文档类存储数据并对变量初始化以及修改。
+	
+	通过在文档类头文件的类声明中添加成员，并在其源文件中添加相应的初始化代码或者定义代码，来达到数据存储的目的。
+	
+	文档类的成员变量可以通过在成员函数OnNewDocument()的定义内填写代码进行初始化。
+
+3.  在视图类通过成员函数GetDocumen()函数获取文档类指针以达到访问文档类数据的目的。
+	
+	该函数不接收任何参数且返回一个文档类的指针，作用为在视图类内提供文档类数据的访问接口。
+
+4.  在视图类内通过调用Invalidate()函数或者InvalidateRect()函数来达到使客户区重绘的目的：
+	- Invalidate()
+		该函数的原型为：
+
+		- void Invalidate(BOOL bErase = TRUE);
+		
+		该函数接收一个默认值为TRUE的BOOL类型参数,作用为调用OnDraw()函数将客户区进行重新绘制。如果参数为真，擦除背景重绘，否则不擦除背景重绘。
+
+	- InvalidateRect()
+		该函数的原型为：
+
+		- void InvalidateRect(LPCRECT lpRect, BOOL bErase = TRUE);
+		
+		该函数接收两个参数分别为一个LPCRECT类型的变量表示需要进行重绘的区域， 一个默认值为TRUE的BOOL类型变量（为真则擦除背景重绘，否则不擦除背景重绘。）
+
+5. 	定时器消息的设置和使用
+	
+	定时器是非常有用的编程元素。定时器消息为WM_TIMER，使用定时器的步骤有三个：
+
+	1.  设置定时器，该步骤通过成员函数SetTimer()完成。其原型为：
+		- UINT SetTimer(UINT nIDEvent, UINT nElapse, void* lpfnTimer);
+	
+	2.  重载消息处理函数OnTimer()（可以由Class Wizard自动编制），其原型为：
+		- afx_msg void OnTimer(UINT nIDEvent);
+		
+		其中参数nIDEvent为定时器标识符。若在程序中设置了多个定时器消息，则在重载的OnTimer()函数中可以根据定时器标识符来区分不同的定时器周期。
+
+	3.  定时器用完后要即使释放。释放定时器使用成员函数KillTimer()，其原型为：
+		- BOOL KillTimer(int nIDEvent);
+	
+		其中nIDEvent为要删除的定时器标识符。
+
+#### 习题解答
+
+* 	习题11.1编码过程
+
+	习题11.1要求：在例11.6的基础上增加用鼠标右键删除泡泡的功能。
+
+	1. 	第一步、使用应用程序向导（APP Wizard）生成文档/视图结构的程序框架。
+	2. 	第二步、修改文档类的声明（头文件），加入宏定义以及变量定义。
+		
+		```cpp
+		#define MAX_BUBBLE 250
+		class CMyDoc : public CDocument
+		{
+		protected: // 仅从序列化创建
+			CMyDoc();
+			DECLARE_DYNCREATE(CMyDoc)
+		// 特性
+		public:
+			CRect m_rectBubble[MAX_BUBBLE];
+			int m_nBubbleCount;
+		// 操作
+		public:
+
+		//...(省略文档类的其它定义语句).
+		};
+		```
+	3. 	第三步、为文档类的成员变量在成员函数OnNewDocument()添加初始化代码：
+		
+		```cpp
+		BOOL CMyDoc::OnNewDocument()
+		{
+			if (!CDocument::OnNewDocument())
+				return FALSE;
+			m_nBubbleCount = 0;
+			// TODO: 在此添加重新初始化代码
+			// (SDI 文档将重用该文档)
+			return TRUE;
+		}
+		```
+
+	4. 	第四步、修改视图类成员函数OnDraw()，添加显示泡泡的代码：
+		
+		```cpp
+		void CMyView::OnDraw(CDC* pDC)
+		{
+			CMyDoc* pDoc = GetDocument();
+			ASSERT_VALID(pDoc);
+			if (!pDoc)
+				return;
+			for (int i = 0; i < pDoc->m_nBubbleCount; ++i) {
+				pDC->Ellipse(pDoc->m_rectBubble[i]);
+			}
+			// TODO: 在此处为本机数据添加绘制代码
+		}
+		```
+	5. 	第五步、使用类向导（Class Wizard）为视图类添加鼠标左键的消息并对消息处理函数进行编码：
+		
+		```cpp
+		void CMyView::OnLButtonDown(UINT nFlags, CPoint point)
+		{
+			// TODO: 在此添加消息处理程序代码和/或调用默认值
+			CMyDoc* pDoc = GetDocument();
+			ASSERT_VALID(pDoc);
+			if (pDoc->m_nBubbleCount < MAX_BUBBLE) {
+				int r = rand() % 50 + 10;
+				CRect rect(point.x - r, point.y - r, point.x + r, point.y + r);
+				pDoc->m_rectBubble[pDoc->m_nBubbleCount] = rect;
+				++pDoc->m_nBubbleCount;
+				pDoc->SetModifiedFlag();
+				InvalidateRect(rect, FALSE);
+			}
+			CView::OnLButtonDown(nFlags, point);
+		}
+		```
+		
+		实现点击鼠标左键显示泡泡的功能。
+
+	6. 	第六步、使用类向导（Class Wizard）为视图类添加鼠标右键的消息并对消息处理函数进行编码：
+
+		```cpp
+		void CMyView::OnRButtonDown(UINT nFlags, CPoint point)
+		{
+			// TODO: 在此添加消息处理程序代码和/或调用默认值
+			CMyDoc* pDoc = GetDocument();
+			ASSERT_VALID(pDoc);
+			if (pDoc->m_nBubbleCount == 0) {
+				MessageBox("没有泡泡了,,,~~");
+			} else {
+				bool isDeleted = false;
+				for (int i = pDoc->m_nBubbleCount - 1; i >= 0; --i) {\
+					if (pDoc->m_rectBubble[i].PtInRect(point)) {
+						CRect tmp = pDoc->m_rectBubble[i];
+						for (int j = i; j < pDoc->m_nBubbleCount - 1; ++j) {
+							pDoc->m_rectBubble[j] = pDoc->m_rectBubble[j + 1];
+						}
+						--pDoc->m_nBubbleCount;
+						InvalidateRect(tmp, TRUE);
+						isDeleted = true;
+						break;
+					}
+				}
+				if (!isDeleted) {
+					MessageBox("你没有点到泡泡哦~,~");
+				}
+			}
+			CView::OnRButtonDown(nFlags, point);
+		}
+		```
+
+		实现删除泡泡的功能。
+
+		程序效果截图：
+
+		![程序效果截图](http://ww2.sinaimg.cn/large/0063AxbLgw1ew4ayiwqusj30sh0fg41i.jpg)
 
 ### 第十二章：图形设备接口和资源
 
